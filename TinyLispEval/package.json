@@ -1,0 +1,16 @@
+{
+  "name": "tiny-lisp-eval",
+  "version": "1.0.0",
+  "description": "Tiny Lisp Evaluator",
+  "main": "index.js",
+  "scripts": {
+    "tokenize": "node output/tests/Tokenizer.Tests.js",
+    "test": "node output/tests/test.js",
+    "eval": "node output/tests/Evaluate.js"
+  },
+  "author": "Orif Turabaev",
+  "license": "MIT",
+  "dependencies": {
+    "assert": "^1.4.1"
+  }
+}

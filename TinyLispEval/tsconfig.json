@@ -1,0 +1,12 @@
+﻿{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "outDir": "./output",
+    "target": "es6",
+    "module": "none"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
