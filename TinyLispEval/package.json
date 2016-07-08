@@ -6,6 +6,7 @@
   "scripts": {
     "tokenize": "node output/tests/Tokenizer.Tests.js",
     "test": "node output/tests/test.js",
+    "parse": "node output/tests/Eval.Tests.js",
     "eval": "node output/tests/Evaluate.js"
   },
   "author": "Orif Turabaev",
