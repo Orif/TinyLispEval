@@ -1,9 +1,29 @@
-﻿type ITokenType = "number" | "paren" | "symbol";
-
-interface IToken {
-    type: ITokenType;
+﻿interface ParenToken {
+    type: "paren";
     value: string;
 }
+
+interface BeginParenToken extends ParenToken {
+    type: "paren";
+    value: "(";
+}
+
+interface EndParenToken extends ParenToken {
+    type: "paren";
+    value: ")";
+}
+
+interface NumberToken {
+    type: "number";
+    value: string;
+}
+
+interface SymbolToken {
+    type: "symbol";
+    value: string;
+}
+
+type Token = BeginParenToken | EndParenToken | NumberToken | SymbolToken;
 
 const WHITESPACE: RegExp = /\s/;
 
@@ -30,15 +50,15 @@ function advance(text: string, start: number): number {
     return start;
 }
 
-function tokenizer(input: string, current: number = 0): Array<IToken> {
-    const tokens: Array<IToken> = [];
+function tokenizer(input: string, current: number = 0): Array<Token> {
+    const tokens: Array<Token> = [];
 
     current = skipWhitespace(input, current);
 
     while (current < input.length) {
         const char = input[current];
         if (char === "(") {
-            tokens.push({
+            tokens.push(<BeginParenToken>{
                 type: "paren",
                 value: "("
             });
@@ -48,7 +68,7 @@ function tokenizer(input: string, current: number = 0): Array<IToken> {
         }
 
         if (char === ")") {
-            tokens.push({
+            tokens.push(<EndParenToken>{
                 type: "paren",
                 value: ")"
             });
@@ -60,9 +80,9 @@ function tokenizer(input: string, current: number = 0): Array<IToken> {
         const endIndex = advance(input, current);
         if (endIndex > current) {
             const sub = input.substring(current, endIndex);
-            const type: ITokenType = isNumeric(sub) ? "number" : "symbol";
-            tokens.push({
-                type: type,
+
+            tokens.push(<Token>{
+                type: isNumeric(sub) ? "number" : "symbol",
                 value: sub
             });
 
@@ -77,4 +97,4 @@ function tokenizer(input: string, current: number = 0): Array<IToken> {
     return tokens;
 }
 
-export { IToken, tokenizer };
+export { Token, tokenizer };

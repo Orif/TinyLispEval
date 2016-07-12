@@ -1,133 +1,60 @@
-﻿export type ExpressionType = "Number" | "Identifier" | "Expression" | "Call";
+﻿type ExpressionType = "Number" | "Identifier" | "Expression" | "Call" | "Block";
 
-export interface IExpression {
-    type: ExpressionType;
-}
-
-//export interface ILiteralExpression<T> extends IExpression {
+//interface ILiteralExpression<T>  {
 //    type: "Literal";
 //    value: T;
 //}
 
-export interface INumberLiteralExpression extends IExpression {
+interface NumberLiteralExpression {
     type: "Number";
     value: number;
 }
 
-export interface IIdentifierExpression extends IExpression {
+interface IdentifierExpression {
     type: "Identifier";
     name: string;
+    expression: Expression;
 }
 
-export interface ILambdaExpression extends IExpression {
+interface LambdaExpression {
     type: "Expression";
     name: string; // args: Array<string>; // probably a useful info, but atm not necessary.
-    expression: IExpression;
-    run: Function;
+    expression: Expression;
+    //run: Function;
+    run: () => Expression;
 }
 
-export interface ICallExpression extends IExpression {
+interface CallExpression {
     type: "Call";
-    args: Array<IExpression>;
-    expression: ILambdaExpression;
+    args: Array<Expression>;
+    expression: LambdaExpression;
 }
 
-export interface IExpressionVisitor {
-    visit(expression: IExpression): IExpression;
+interface IfThenElseExpression {
+    type: "If";
+    condition: Expression;
+    consequence: Expression;
+    alternative: Expression;
 }
 
-export class ExpressionVisitor implements IExpressionVisitor {
-    scope: Map<string, Object>;
-
-    constructor() {
-        this.scope = new Map<string, Object>();
-    }
-
-    visit(expression: IExpression): IExpression {
-        return visit(expression);
-    }
+interface BlockExpression {
+    type: "Block";
+    expressions: Array<Expression>;
 }
 
-class Scope {
-    private map: Map<string, Object>;
-    private outerScope: Scope;
+type Expression = BlockExpression | NumberLiteralExpression | IdentifierExpression | LambdaExpression | CallExpression | IfThenElseExpression;
 
-    constructor(outerScope: Scope) {
-        this.outerScope = outerScope;
-        this.map = new Map<string, Object>();
-    }
-
-    find<T>(symbolName: string): T {
-        return (
-            this.map.has(symbolName)
-                ? <T>this.map.get(symbolName)
-                : (this.outerScope
-                    ? <T>this.outerScope.find(symbolName)
-                    : undefined)
-        );
-    }
-    add(symbolName: string, value: Object): void {
-        this.map.set(symbolName, value);
-    }
-
-    createChildScope(): Scope {
-        return new Scope(this);
-    }
-
-    static defaultScope: Scope = new DefaultScope();
-}
-class DefaultScope extends Scope {
-    constructor() {
-        super(undefined);
-
-        // todo: add operators and Math functions
-    }
+interface IExpressionVisitor {
+    visit(expression: Expression): Expression;
 }
 
-function visit(expression: IExpression, scope: Scope = Scope.defaultScope): IExpression {
-    switch (expression.type) {
-        case "Number":
-            return expression;
-
-        case "Identifier":
-            return scope.find<IExpression>((<IIdentifierExpression>expression).name);
-
-        case "Expression":
-            return visitLambda(expression, scope);
-
-        case "Call":
-            return visitCall(expression, scope);
-
-        default:
-            throw new TypeError(`Unknown type: ${expression.type}`);
-    }
-}
-
-function visitLambda(expression: IExpression, scope: Scope = Scope.defaultScope): ILambdaExpression {
-    const lambdaExpression = <ILambdaExpression>expression;
-    const childScope = scope.createChildScope();
-    const body = (...args: Array<IExpression>) => {
-
-    };
-
-    return {
-        type: "Expression",
-        name: lambdaExpression.name,
-        expression: undefined,
-        run: body
-    };
-}
-
-function visitCall(expression: IExpression, scope: Scope = Scope.defaultScope): IExpression {
-    const callExpression = <ICallExpression>expression;
-
-    const childScope = scope.createChildScope();
-    const args = callExpression.args.map(arg => visit(arg, childScope));
-    const lambda = visitLambda(callExpression.expression, scope);
-    const callResult = lambda.run.apply(null, args);
-
-    return <INumberLiteralExpression>{
-        type: "Number",
-        value: <number>callResult
-    }
+export {
+    NumberLiteralExpression,
+    IdentifierExpression,
+    LambdaExpression,
+    CallExpression,
+    IfThenElseExpression,
+    BlockExpression,
+    Expression,
+    IExpressionVisitor
 }

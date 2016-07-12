@@ -1,80 +1,83 @@
-﻿import { IToken } from "./Tokenizer";
+﻿import { Token } from "./Tokenizer";
 
-export type IAstNodeType = "NumberLiteral" | "CallExpression" | "Program";
-
-export interface IAstNode {
-    type: IAstNodeType;
-}
-
-export interface INumberAstNode extends IAstNode {
+interface NumberNode {
     type: "NumberLiteral";
     value: string;
 }
 
-export interface ICallAstNode extends IAstNode {
-    type: "CallExpression";
+interface SymbolNode {
+    type: "Symbol";
     name?: string;
-    params?: Array<IAstNode>;
+    params?: Array<ParsedTreeNode>;
 }
 
-export interface IAstBody extends IAstNode {
+interface BlockNode {
     type: "Program";
-    body: Array<IAstNode>;
+    body: Array<ParsedTreeNode>;
 }
 
-export function parser(tokens: Array<IToken>): IAstBody {
+type ParsedTreeNode = NumberNode | SymbolNode | BlockNode;
+
+function parser(tokens: Array<Token>): BlockNode {
     let current = 0;
 
-    function walk(): IAstNode {
+    function walk(): ParsedTreeNode {
         let token = tokens[current];
 
-        if (token.type === "number") {
-            current++;
+        switch (token.type) {
+            case "number":
+                current++;
 
-            return <INumberAstNode>{
-                type: "NumberLiteral",
-                value: token.value
-            };
+                return <NumberNode>{
+                    type: "NumberLiteral",
+                    value: token.value
+                };
+
+            case "symbol":
+                current++;
+
+                return <SymbolNode>{
+                    type: "Symbol",
+                    name: token.value,
+                    params: []
+                };
+
+            case "paren":
+                if (token.value === "(") {
+                    token = tokens[++current];
+
+                    const node: SymbolNode = {
+                        type: "Symbol",
+                        name: token.value,
+                        params: []
+                    };
+
+                    token = tokens[++current];
+
+                    while ((token.type !== "paren") || (token.type === "paren" && token.value !== ")")) {
+                        node.params.push(walk());
+                        token = tokens[current];
+                    }
+
+                    current++;
+
+                    return node;
+                }
+                break;
         }
 
-        if (
-            token.type === "paren" &&
-            token.value === "("
-        ) {
-            token = tokens[++current];
-
-            const node: ICallAstNode = {
-                type: "CallExpression",
-                name: token.value,
-                params: []
-            };
-
-            token = tokens[++current];
-
-            while (
-                (token.type !== "paren") ||
-                (token.type === "paren" && token.value !== ")")
-            ) {
-                node.params.push(walk());
-                token = tokens[current];
-            }
-
-            current++;
-
-            return node;
-        }
-
-        throw new TypeError(token.type);
+        throw new TypeError(`Unexpected token type: ${token.type}`);
     }
 
-    let ast: IAstBody = {
-        type: "Program",
-        body: []
-    };
-
+    const nodes: Array<ParsedTreeNode> = [];
     while (current < tokens.length) {
-        ast.body.push(walk());
+        nodes.push(walk());
     }
 
-    return ast;
+    return <BlockNode>{
+        type: "Program",
+        body: nodes
+    };
 }
+
+export { ParsedTreeNode, parser };

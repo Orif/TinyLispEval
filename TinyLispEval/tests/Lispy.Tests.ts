@@ -1,5 +1,4 @@
 ﻿import * as assert from "assert";
-import { evaluate } from "../src/Evaluate";
 
 function evalAssert(expression: string, result: string) {
     //assert.deepStrictEqual(evaluate(expression), result);

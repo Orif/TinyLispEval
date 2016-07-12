@@ -1,5 +1,5 @@
 ﻿import * as assert from "assert";
-import { IToken, tokenizer } from "../src/Tokenizer";
+import { Token, tokenizer } from "../src/Tokenizer";
 
 const input = "(add 2 (subtract 4 2))";
 

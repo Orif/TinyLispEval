@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.9</TypeScriptToolsVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -25,19 +25,15 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="src\Compiler.ts" />
-    <TypeScriptCompile Include="src\CstNodeEnvironment.ts" />
     <TypeScriptCompile Include="src\Environment.ts" />
-    <TypeScriptCompile Include="src\Evaluate.ts" />
-    <TypeScriptCompile Include="src\EvalVisitor.ts" />
     <TypeScriptCompile Include="src\Expression.ts" />
+    <TypeScriptCompile Include="src\ExpressionVisitor.ts" />
     <TypeScriptCompile Include="src\Parser.ts" />
     <TypeScriptCompile Include="src\StandardEnvironment.ts" />
     <TypeScriptCompile Include="src\Tokenizer.ts" />
-    <TypeScriptCompile Include="src\Transformer.ts" />
+    <TypeScriptCompile Include="src\TokenToExpression.ts" />
     <TypeScriptCompile Include="tests\Eval.Tests.ts" />
     <TypeScriptCompile Include="tests\Lispy.Tests.ts" />
-    <TypeScriptCompile Include="tests\Test.ts" />
     <TypeScriptCompile Include="tests\Tokenizer.Tests.ts" />
     <TypeScriptCompile Include="typings\globals\assert\index.d.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />

@@ -1,13 +1,16 @@
 ﻿import * as assert from "assert";
-import { IToken, tokenizer } from "../src/Tokenizer";
+import { Token, tokenizer } from "../src/Tokenizer";
 import { parser } from "../src/Parser";
-import { interpret } from "../src/EvalVisitor";
+import { ExpressionVisitor } from "../src/ExpressionVisitor";
 
-const input = `(max 3 (* (min (+ 2 (- 4 2)) 5)) 4)`;
+const input = `(define circle-area (lambda (r) (* pi (* r r))))`;
 
 const tokens = tokenizer(input);
 const ast = parser(tokens);
 //const result = interpret(ast);
+
+//const visitor = new ExpressionVisitor();
+//visitor.visit(ast);
 
 console.log(JSON.stringify(ast, null, 4));
 //console.log(result);
