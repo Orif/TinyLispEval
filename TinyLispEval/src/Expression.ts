@@ -26,8 +26,8 @@ interface LambdaExpression {
 
 interface CallExpression {
     type: "Call";
+    name: string;
     args: Array<Expression>;
-    expression: LambdaExpression;
 }
 
 interface IfThenElseExpression {

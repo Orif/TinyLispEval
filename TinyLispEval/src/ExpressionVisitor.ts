@@ -93,15 +93,17 @@ function visitLambda(expression: Expression, scope: Scope = Scope.defaultScope):
 }
 
 function visitCall(expression: Expression, scope: Scope = Scope.defaultScope): Expression {
-    const callExpression = <CallExpression>expression;
+    //const callExpression = <CallExpression>expression;
 
-    const childScope = scope.createChildScope();
-    const args = callExpression.args.map(arg => visit(arg, childScope));
-    const lambda = visitLambda(callExpression.expression, scope);
-    const callResult = lambda.run.apply(null, args);
+    //const childScope = scope.createChildScope();
+    //const args = callExpression.args.map(arg => visit(arg, childScope));
+    //const lambda = visitLambda(callExpression.name, scope);
+    //const callResult = lambda.run.apply(null, args);
 
-    return <NumberLiteralExpression>{
-        type: "Number",
-        value: <number>callResult
-    }
+    //return <NumberLiteralExpression>{
+    //    type: "Number",
+    //    value: <number>callResult
+    //}
+
+    return undefined;
 }

@@ -116,7 +116,7 @@ function toExpression(node: ParsedTreeNode): Expression {
                     return toConditionalExpression(node);
 
                 case "quote":
-                    break;
+                    return toQuoteExpression(node);
 
                 case "set!":
                     return toIdentifierExpression(node);
@@ -125,13 +125,11 @@ function toExpression(node: ParsedTreeNode): Expression {
                     return toLambdaExpression(node);
 
                 default:
-                    // to call expression
-                    break;
+                    return toCallExpression(node);
             }
-            break;
     }
 
-    throw new TypeError(`Unknown type of AST Node: ${node.type}`);
+    throw new TypeError(`Unexpected parsed node: ${node}`);
 }
 
 function toIdentifierExpression(node: SymbolNode): Expression {
@@ -156,6 +154,29 @@ function toConditionalExpression(node: SymbolNode): IfThenElseExpression {
     };
 }
 
-function toLambdaExpression(node: SymbolNode): Expression {
+function toQuoteExpression(node: SymbolNode): Expression {
     return undefined;
 }
+
+function toLambdaExpression(node: SymbolNode): LambdaExpression {
+    const [args, body] = node.params;
+
+    return {
+        type: "Expression",
+        name: node.name,
+        expression: toExpression(body),
+        run: undefined
+    };
+}
+
+function toCallExpression(node: SymbolNode): CallExpression {
+    const args = node.params.map(toExpression);
+
+    return {
+        type: "Call",
+        name: node.name,
+        args: args
+    };
+}
+
+export { toExpression }
