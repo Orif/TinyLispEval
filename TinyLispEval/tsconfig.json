@@ -2,9 +2,11 @@
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "strictNullChecks": false,
     "outDir": "./output",
     "target": "es6",
-    "module": "none"
+    "module": "none",
+    "removeComments": true
   },
   "exclude": [
     "node_modules",

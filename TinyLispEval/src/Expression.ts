@@ -1,11 +1,4 @@
-﻿type ExpressionType = "Number" | "Identifier" | "Expression" | "Call" | "Block";
-
-//interface ILiteralExpression<T>  {
-//    type: "Literal";
-//    value: T;
-//}
-
-interface NumberLiteralExpression {
+﻿interface NumberLiteralExpression {
     type: "Number";
     value: number;
 }
@@ -18,10 +11,9 @@ interface IdentifierExpression {
 
 interface LambdaExpression {
     type: "Expression";
-    name: string; // args: Array<string>; // probably a useful info, but atm not necessary.
-    expression: Expression;
-    //run: Function;
-    run: () => Expression;
+    name: string;
+    //args: Array<string>;
+    body: Expression;
 }
 
 interface CallExpression {
@@ -42,7 +34,13 @@ interface BlockExpression {
     expressions: Array<Expression>;
 }
 
-type Expression = BlockExpression | NumberLiteralExpression | IdentifierExpression | LambdaExpression | CallExpression | IfThenElseExpression;
+type Expression
+    = BlockExpression
+    | NumberLiteralExpression
+    | IdentifierExpression
+    | LambdaExpression
+    | CallExpression
+    | IfThenElseExpression;
 
 interface IExpressionVisitor {
     visit(expression: Expression): Expression;

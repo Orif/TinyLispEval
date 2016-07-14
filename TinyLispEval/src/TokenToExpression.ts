@@ -1,4 +1,10 @@
 ﻿import { Token } from "./Tokenizer";
+
+import {
+    ParsedTreeNode,
+    SymbolNode
+} from "./TokenIterator";
+
 import {
     NumberLiteralExpression,
     IdentifierExpression,
@@ -9,88 +15,6 @@ import {
     Expression,
     IExpressionVisitor
 } from "./Expression";
-
-type ExpressionType = "Number" | "Identifier" | "Expression" | "Call";
-
-interface NumberNode {
-    type: "NumberLiteral";
-    value: string; // can be a really big number
-}
-
-interface SymbolNode {
-    type: "Symbol";
-    name?: string;
-    params?: Array<ParsedTreeNode>;
-}
-
-interface BlockNode {
-    type: "Program";
-    body: Array<ParsedTreeNode>;
-}
-
-type ParsedTreeNode = NumberNode | SymbolNode | BlockNode;
-
-function parser(tokens: Array<Token>): BlockNode {
-    let current = 0;
-
-    function walk(): ParsedTreeNode {
-        let token = tokens[current];
-
-        switch (token.type) {
-            case "number":
-                current++;
-
-                return <NumberNode>{
-                    type: "NumberLiteral",
-                    value: token.value
-                };
-
-            case "symbol":
-                current++;
-
-                return <SymbolNode>{
-                    type: "Symbol",
-                    name: token.value,
-                    params: []
-                };
-
-            case "paren":
-                if (token.value === "(") {
-                    token = tokens[++current];
-
-                    const node: SymbolNode = {
-                        type: "Symbol",
-                        name: token.value,
-                        params: []
-                    };
-
-                    token = tokens[++current];
-
-                    while ((token.type !== "paren") || (token.type === "paren" && token.value !== ")")) {
-                        node.params.push(walk());
-                        token = tokens[current];
-                    }
-
-                    current++;
-
-                    return node;
-                }
-                break;
-        }
-
-        throw new TypeError(`Unexpected token type: ${token.type}`);
-    }
-
-    const nodes: Array<ParsedTreeNode> = [];
-    while (current < tokens.length) {
-        nodes.push(walk());
-    }
-
-    return <BlockNode>{
-        type: "Program",
-        body: nodes
-    };
-}
 
 function toExpression(node: ParsedTreeNode): Expression {
     switch (node.type) {
@@ -110,7 +34,7 @@ function toExpression(node: ParsedTreeNode): Expression {
         case "Symbol":
             switch (node.name) {
                 case "define":
-                    return toIdentifierExpression(node);
+                    return toSetIdentifierExpression(node);
 
                 case "if":
                     return toConditionalExpression(node);
@@ -118,29 +42,52 @@ function toExpression(node: ParsedTreeNode): Expression {
                 case "quote":
                     return toQuoteExpression(node);
 
-                case "set!":
-                    return toIdentifierExpression(node);
+                case "set!": // todo: check if the identifier exists
+                    return toSetIdentifierExpression(node);
 
                 case "lambda":
                     return toLambdaExpression(node);
 
                 default:
-                    return toCallExpression(node);
+                    // a function call with params
+                    if (node.params.length > 0) {
+                        return toCallExpression(node);
+                    }
+
+                    // just a reference to an identifier
+                    return toIdentifierExpression(node);
             }
     }
 
     throw new TypeError(`Unexpected parsed node: ${node}`);
 }
 
-function toIdentifierExpression(node: SymbolNode): Expression {
+function toIdentifierExpression(node: SymbolNode): IdentifierExpression {
+    return {
+        type: "Identifier",
+        name: node.name,
+        expression: undefined
+    };
+}
+
+function toSetIdentifierExpression(node: SymbolNode): IdentifierExpression | LambdaExpression {
     const [id_node, value] = node.params;
-    const identifier: Expression = {
+
+    if (value.type === "Symbol" && value.name === "lambda") {
+        const [, body] = value.params;
+
+        return {
+            type: "Expression",
+            name: (id_node as SymbolNode).name,
+            body: toExpression(body)
+        };
+    }
+
+    return {
         type: "Identifier",
         name: (id_node as SymbolNode).name,
         expression: toExpression(value)
     };
-
-    return identifier;
 }
 
 function toConditionalExpression(node: SymbolNode): IfThenElseExpression {
@@ -154,18 +101,18 @@ function toConditionalExpression(node: SymbolNode): IfThenElseExpression {
     };
 }
 
+// todo
 function toQuoteExpression(node: SymbolNode): Expression {
     return undefined;
 }
 
 function toLambdaExpression(node: SymbolNode): LambdaExpression {
-    const [args, body] = node.params;
+    const [argsBody, body] = node.params;
 
     return {
         type: "Expression",
         name: node.name,
-        expression: toExpression(body),
-        run: undefined
+        body: toExpression(body)
     };
 }
 

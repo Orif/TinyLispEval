@@ -25,11 +25,9 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="src\Environment.ts" />
     <TypeScriptCompile Include="src\Expression.ts" />
     <TypeScriptCompile Include="src\ExpressionVisitor.ts" />
-    <TypeScriptCompile Include="src\Parser.ts" />
-    <TypeScriptCompile Include="src\StandardEnvironment.ts" />
+    <TypeScriptCompile Include="src\TokenIterator.ts" />
     <TypeScriptCompile Include="src\Tokenizer.ts" />
     <TypeScriptCompile Include="src\TokenToExpression.ts" />
     <TypeScriptCompile Include="tests\Eval.Tests.ts" />

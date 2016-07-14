@@ -2,7 +2,7 @@
 
 interface NumberNode {
     type: "NumberLiteral";
-    value: string;
+    value: string; // can be a really big number
 }
 
 interface SymbolNode {
@@ -18,7 +18,7 @@ interface BlockNode {
 
 type ParsedTreeNode = NumberNode | SymbolNode | BlockNode;
 
-function parser(tokens: Array<Token>): BlockNode {
+function tokenIterator(tokens: Array<Token>): BlockNode {
     let current = 0;
 
     function walk(): ParsedTreeNode {
@@ -46,22 +46,23 @@ function parser(tokens: Array<Token>): BlockNode {
                 if (token.value === "(") {
                     token = tokens[++current];
 
-                    const node: SymbolNode = {
-                        type: "Symbol",
-                        name: token.value,
-                        params: []
-                    };
+                    const name = token.value;
+                    const params: Array<ParsedTreeNode> = [];
 
                     token = tokens[++current];
 
                     while ((token.type !== "paren") || (token.type === "paren" && token.value !== ")")) {
-                        node.params.push(walk());
+                        params.push(walk());
                         token = tokens[current];
                     }
 
                     current++;
 
-                    return node;
+                    return {
+                        type: "Symbol",
+                        name: name,
+                        params: params
+                    };
                 }
                 break;
         }
@@ -80,4 +81,4 @@ function parser(tokens: Array<Token>): BlockNode {
     };
 }
 
-export { ParsedTreeNode, parser };
+export { ParsedTreeNode, NumberNode, SymbolNode, BlockNode, tokenIterator };
