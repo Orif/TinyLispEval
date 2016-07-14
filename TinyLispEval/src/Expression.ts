@@ -12,7 +12,7 @@ interface IdentifierExpression {
 interface LambdaExpression {
     type: "Expression";
     name: string;
-    //args: Array<string>;
+    args: Array<string>;
     body: Expression;
 }
 
