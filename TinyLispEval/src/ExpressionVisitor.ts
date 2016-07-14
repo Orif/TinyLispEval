@@ -49,6 +49,8 @@ class DefaultScope extends Scope {
         this.add("*", (first: any, second: any) => first * second);
         this.add("/", (first: any, second: any) => first / second);
 
+        this.add("pi", () => Math.PI);
+
         //this.map.set(">", (first: any, second: any) => first > second);
         //this.map.set("<", (first: any, second: any) => first < second);
         //this.map.set(">=", (first: any, second: any) => first >= second);
@@ -84,8 +86,7 @@ function visit(expression: Expression, scope: Scope = Scope.defaultScope): any {
             return;
 
         case "Block":
-            visitBlock(expression, scope);
-            return;
+            return visitBlock(expression, scope);
     }
 
     throw new TypeError(`Unknown expression: ${expression}`);
@@ -113,7 +114,11 @@ function visitLambda(lambdaExpression: LambdaExpression, scope: Scope = Scope.de
             throw new SyntaxError(`Not supported expression: ${lambdaExpression.body.type}`);
     }
 
-    scope.add(lambdaExpression.name, (...args: Array<any>) => visit(lambdaExpression.body, scope));
+    const childScope = scope.createChildScope();
+    scope.add(lambdaExpression.name, (...args: Array<any>) => {
+        lambdaExpression.args.forEach((arg: string, index: number) => childScope.add(arg, args[index]));
+        visit(lambdaExpression.body, childScope);
+    });
 }
 
 function visitIfThenElse(expression: IfThenElseExpression, scope: Scope = Scope.defaultScope): any {
@@ -128,14 +133,15 @@ function visitCall(callExpression: CallExpression, scope: Scope = Scope.defaultS
         throw new SyntaxError(`Unknown expression: ${func}`);
     }
 
-    const childScope = scope.createChildScope();
-    const args = callExpression.args.map(arg => visit(arg, childScope));
+    const args = callExpression.args.map(arg => visit(arg, scope));
 
-    return func(...args);
+    const result = func(...args);
+    return result;
 }
 
-function visitBlock(blockExpression: BlockExpression, scope: Scope = Scope.defaultScope): void {
-    blockExpression.expressions.forEach((expression: Expression) => visit(expression));
+function visitBlock(blockExpression: BlockExpression, scope: Scope = Scope.defaultScope): any {
+    const results = blockExpression.expressions.map(expression => visit(expression));
+    return results[results.length - 1];
 }
 
 export class ExpressionVisitor {
