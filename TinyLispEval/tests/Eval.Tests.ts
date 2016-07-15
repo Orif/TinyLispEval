@@ -9,7 +9,8 @@ const input_complex_moderate = `
     (begin
         (define rectangle-area (lambda (height width) (* height width)))
         (define get-my-rect-area (lambda (ratio) (rectangle-area (* ratio 20) 20)))
-        (get-my-rect-area 20)
+        (define area (get-my-rect-area 20))
+        (define result (if (< area 5000) area 5000))
     )
 `;
 const input_complex = `
@@ -23,7 +24,7 @@ const input_complex = `
 const tokens = tokenizer(input_complex_moderate);
 const ast = tokenIterator(tokens);
 const expression = toExpression(ast);
-console.log(JSON.stringify(expression, null, 4));
+// console.log(JSON.stringify(expression, null, 4));
 
 const visitor = new ExpressionVisitor();
 const result = visitor.eval(expression);

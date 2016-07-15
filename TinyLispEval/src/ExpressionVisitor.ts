@@ -42,8 +42,6 @@ class DefaultScope extends Scope {
     constructor() {
         super(undefined);
 
-        // todo: add operators and Math functions
-
         this.add("+", (first: any, second: any) => first + second);
         this.add("-", (first: any, second: any) => first - second);
         this.add("*", (first: any, second: any) => first * second);
@@ -51,11 +49,12 @@ class DefaultScope extends Scope {
 
         this.add("pi", () => Math.PI);
 
-        //this.map.set(">", (first: any, second: any) => first > second);
-        //this.map.set("<", (first: any, second: any) => first < second);
-        //this.map.set(">=", (first: any, second: any) => first >= second);
-        //this.map.set("<=", (first: any, second: any) => first <= second);
-        //this.map.set("=", (first: any, second: any) => first = second);
+        this.add(">", (first: any, second: any) => first > second);
+        this.add("<", (first: any, second: any) => first < second);
+        this.add(">=", (first: any, second: any) => first >= second);
+        this.add("<=", (first: any, second: any) => first <= second);
+
+        // todo: add operators and Math functions
 
         //this.map.set("abs", Math.abs);
         //this.map.set("max", Math.max);
