@@ -117,7 +117,7 @@ function visitLambda(lambdaExpression: LambdaExpression, scope: Scope = Scope.de
     const childScope = scope.createChildScope();
     scope.add(lambdaExpression.name, (...args: Array<any>) => {
         lambdaExpression.args.forEach((arg: string, index: number) => childScope.add(arg, args[index]));
-        visit(lambdaExpression.body, childScope);
+        return visit(lambdaExpression.body, childScope);
     });
 }
 
