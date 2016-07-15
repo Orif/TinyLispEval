@@ -8,7 +8,8 @@ const input = `(define circle-area (lambda (r) (* pi (* r r))))`;
 const input_complex_moderate = `
     (begin
         (define rectangle-area (lambda (height width) (* height width)))
-        (rectangle-area 10 30)
+        (define get-my-rect-area (lambda (ratio) (rectangle-area (* ratio 20) 20)))
+        (get-my-rect-area 20)
     )
 `;
 const input_complex = `
@@ -22,14 +23,8 @@ const input_complex = `
 const tokens = tokenizer(input_complex_moderate);
 const ast = tokenIterator(tokens);
 const expression = toExpression(ast);
-//console.log(JSON.stringify(expression, null, 4));
-
-//const result = interpret(ast);
+console.log(JSON.stringify(expression, null, 4));
 
 const visitor = new ExpressionVisitor();
 const result = visitor.eval(expression);
 console.log(result);
-
-//assert.deepStrictEqual(tokenizer(input), tokens, 'Tokenizer should turn `input` string into `tokens` array');
-
-//console.log('All Passed!');
