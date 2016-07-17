@@ -6,7 +6,7 @@
 interface IdentifierExpression {
     type: "Identifier";
     name: string;
-    expression: Expression;
+    expression?: Expression;
 }
 
 interface LambdaExpression {
