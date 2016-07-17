@@ -143,8 +143,6 @@ function visitBlock(blockExpression: BlockExpression, scope: Scope = Scope.defau
     return results[results.length - 1];
 }
 
-export class ExpressionVisitor {
-    eval(expression: Expression): any {
-        return visit(expression);
-    }
+export function evaluate(expression: Expression): any {
+    return visit(expression);
 }

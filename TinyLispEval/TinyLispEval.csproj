@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\Expression.ts" />
-    <TypeScriptCompile Include="src\ExpressionVisitor.ts" />
+    <TypeScriptCompile Include="src\EvaluateExpression.ts" />
     <TypeScriptCompile Include="src\Lexer.ts" />
     <TypeScriptCompile Include="src\Parser.ts" />
     <TypeScriptCompile Include="src\TokenIterator.ts" />

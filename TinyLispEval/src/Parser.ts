@@ -22,15 +22,10 @@ function toSetIdentifierExpression(token: SymbolToken): IdentifierExpression | L
     const [id_node, value] = token.tokens;
 
     if (value.type === "symbol" && value.value === "lambda") {
-        const [argsBody, body] = value.tokens;
-        const args = (argsBody as SymbolToken).tokens.map(arg => arg.value);
+        let lambda = toLambdaExpression(value);
+        lambda.name = id_node.value;
 
-        return {
-            type: "Expression",
-            name: id_node.value,
-            args: args,
-            body: toExpression(body)
-        };
+        return lambda;
     }
 
     return {
@@ -69,7 +64,133 @@ function toLambdaExpression(token: SymbolToken): LambdaExpression {
     };
 }
 
-function toCallExpression(token: SymbolToken): CallExpression {
+let __anon_id_counter__: number = 0;
+function getUniqueName() {
+    return `$$t_${__anon_id_counter__++}`;
+}
+
+function toAnonLambdaExpression(token: SymbolToken): IdentifierExpression {
+    const uniqueName = `lambda_${getUniqueName()}`;
+
+    const defineAnonIdentifierForLambda: SymbolToken = {
+        type: "symbol",
+        value: uniqueName
+    };
+    const defineLambda: SymbolToken = {
+        type: "symbol",
+        tokens: [defineAnonIdentifierForLambda, token]
+    };
+
+    const emitted = toSetIdentifierExpression(defineLambda);
+
+    const sample = {
+        "type": "Call",
+        "args": [
+
+            {
+                "type": "Expression",
+                "name": "circle-area",
+                "args": [
+                    "r"
+                ],
+                "body": {
+                    "type": "Call",
+                    "name": "*",
+                    "args": [
+                        {
+                            "type": "Identifier",
+                            "name": "pi"
+                        },
+                        {
+                            "type": "Call",
+                            "name": "*",
+                            "args": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "r"
+                                },
+                                {
+                                    "type": "Identifier",
+                                    "name": "r"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+
+            , {
+                "type": "Call",
+                "name": "circle-area",
+                "args": [
+                    {
+                        "type": "Number",
+                        "value": 10
+                    }
+                ]
+            }
+        ]
+    };
+
+    const current = {
+        "type": "Call",
+        "args": [
+            {
+                "type": "Expression",
+                "name": "some_anon_lambda",
+                "args": [
+                    "x"
+                ],
+                "body": {
+                    "type": "Call",
+                    "name": "+",
+                    "args": [
+                        {
+                            "type": "Identifier",
+                            "name": "x"
+                        },
+                        {
+                            "type": "Identifier",
+                            "name": "x"
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "Number",
+                "value": 5
+            }
+        ]
+    };
+
+    return <IdentifierExpression>emitted;
+}
+
+function toCallExpression(token: SymbolToken): CallExpression | BlockExpression {
+    const [fn_node, ...params] = token.tokens;
+
+    if (fn_node.type === "symbol" && fn_node.value === "lambda") {
+        const identifierExpression = toAnonLambdaExpression(fn_node);
+        const args = params.map(toExpression);
+
+        const callExpression = {
+            type: "Call",
+            name: identifierExpression.name,
+            args: args
+        };
+
+        return <BlockExpression>{
+            type: "Block",
+            expressions: [identifierExpression, callExpression]
+        };
+    }
+
+    const call = toNamedCallExpression(token);
+
+    return call;
+}
+
+function toNamedCallExpression(token: SymbolToken): CallExpression {
     const args = token.tokens.map(toExpression);
 
     return {
@@ -102,7 +223,13 @@ function toExpression(token: Token): Expression {
                     return toSetIdentifierExpression(token);
 
                 case "lambda":
-                    return toLambdaExpression(token);
+                    // if it ever reaches this line, then it means `lambda` was anonymous.
+                    // and this lambda is only visible in this scope.
+                    // we will emit:
+                    //   1) a temp identifier a unique name
+                    //   2) and body containing a lambda
+                    //   3) call the the temp identifier
+                    return toAnonLambdaExpression(token);
 
                 case "begin":
                     const expressions = token.tokens.map(toExpression);
@@ -113,7 +240,7 @@ function toExpression(token: Token): Expression {
 
                 default:
                     // a function call with params
-                    if ((token.tokens || []).length > 0) {
+                    if (!isNullOrEmpty(token.tokens)) {
                         return toCallExpression(token);
                     }
                     break;

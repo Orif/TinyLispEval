@@ -16,59 +16,6 @@ import {
     IExpressionVisitor
 } from "./Expression";
 
-function toExpression(node: ParsedTreeNode): Expression {
-    switch (node.type) {
-        case "NumberLiteral":
-            return {
-                type: "Number",
-                value: (node.value as any) * 1.0
-            };
-
-        case "Program":
-            const expressions = node.body.map(toExpression);
-            return {
-                type: "Block",
-                expressions: expressions
-            };
-
-        case "Symbol":
-            switch (node.name) {
-                case "define":
-                    return toSetIdentifierExpression(node);
-
-                case "if":
-                    return toConditionalExpression(node);
-
-                case "quote":
-                    return toQuoteExpression(node);
-
-                case "set!": // todo: check if the identifier exists
-                    return toSetIdentifierExpression(node);
-
-                case "lambda":
-                    return toLambdaExpression(node);
-
-                case "begin":
-                    const expressions = node.params.map(toExpression);
-                    return {
-                        type: "Block",
-                        expressions: expressions
-                    };
-
-                default:
-                    // a function call with params
-                    if (node.params.length > 0) {
-                        return toCallExpression(node);
-                    }
-
-                    // just a reference to an identifier
-                    return toIdentifierExpression(node);
-            }
-    }
-
-    throw new TypeError(`Unexpected parsed node: ${node}`);
-}
-
 function toIdentifierExpression(node: SymbolNode): IdentifierExpression {
     return {
         type: "Identifier",
@@ -137,6 +84,59 @@ function toCallExpression(node: SymbolNode): CallExpression {
         name: node.name,
         args: args
     };
+}
+
+function toExpression(node: ParsedTreeNode): Expression {
+    switch (node.type) {
+        case "NumberLiteral":
+            return {
+                type: "Number",
+                value: (node.value as any) * 1.0
+            };
+
+        case "Program":
+            const expressions = node.body.map(toExpression);
+            return {
+                type: "Block",
+                expressions: expressions
+            };
+
+        case "Symbol":
+            switch (node.name) {
+                case "define":
+                    return toSetIdentifierExpression(node);
+
+                case "if":
+                    return toConditionalExpression(node);
+
+                case "quote":
+                    return toQuoteExpression(node);
+
+                case "set!": // todo: check if the identifier exists
+                    return toSetIdentifierExpression(node);
+
+                case "lambda":
+                    return toLambdaExpression(node);
+
+                case "begin":
+                    const expressions = node.params.map(toExpression);
+                    return {
+                        type: "Block",
+                        expressions: expressions
+                    };
+
+                default:
+                    // a function call with params
+                    if (node.params.length > 0) {
+                        return toCallExpression(node);
+                    }
+
+                    // just a reference to an identifier
+                    return toIdentifierExpression(node);
+            }
+    }
+
+    throw new TypeError(`Unexpected parsed node: ${node}`);
 }
 
 export { toExpression }

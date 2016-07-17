@@ -1,31 +1,40 @@
 ﻿import * as assert from "assert";
+import { Token, tokenizer } from "../src/Tokenizer";
+import { tokenIterator } from "../src/TokenIterator";
+import { toExpression } from "../src/TokenToExpression";
+import { evaluate } from "../src/EvaluateExpression";
 
-function evalAssert(expression: string, result: string) {
-    //assert.deepStrictEqual(evaluate(expression), result);
-    assert.deepStrictEqual(expression, result);
+function evalAssert(input: string, expected: any) {
+    const tokens = tokenizer(input);
+    const ast = tokenIterator(tokens);
+    const expression = toExpression(ast);
+    // console.log(JSON.stringify(expression, null, 4));
+
+    const result = evaluate(expression);
+
+    assert.deepStrictEqual(result, expected);
 }
 
-evalAssert(`(quote (testing 1 (2.0) -3.14e159))`, `(testing 1 (2.0) -3.14e159)`);
-evalAssert(`(+ 2 2)`, `4`);
-evalAssert(`(+ (* 2 100) (* 1 10))`, `210`);
-evalAssert(`(if (> 6 5) (+ 1 1) (+ 2 2))`, `2`);
-evalAssert(`(if (< 6 5) (+ 1 1) (+ 2 2))`, `4`);
-evalAssert(`(define x 3)`, `3`);
-evalAssert(`x`, `3`);
-evalAssert(`(+ x x)`, `6`);
-evalAssert(`(begin (define x 1) (set! x (+ x 1)) (+ x 1))`, `3`);
-evalAssert(`((lambda (x) (+ x x)) 5)`, `10`);
+//evalAssert(`(quote (testing 1 (2.0) -3.14e159))`, `(testing 1 (2.0) -3.14e159)`);
+evalAssert(`(+ 2 2)`, 4);
+evalAssert(`(+ (* 2 100) (* 1 10))`, 210);
+evalAssert(`(if (> 6 5) (+ 1 1) (+ 2 2))`, 2);
+evalAssert(`(if (< 6 5) (+ 1 1) (+ 2 2))`, 4);
+evalAssert(`(define x 3)`, 3);
+evalAssert(`x`, 3);
+evalAssert(`(+ x x)`, 6);
+evalAssert(`(begin (define x 1) (set! x (+ x 1)) (+ x 1))`, 3);
+evalAssert(`((lambda (x) (+ x x)) 5)`, 10);
 evalAssert(`(define twice (lambda (x) (* 2 x)))`, `<Lambda>`);
 evalAssert(`(twice 5)`, `10`);
 evalAssert(`(define compose (lambda (f g) (lambda (x) (f (g x)))))`, `<Lambda>`);
 evalAssert(`((compose list twice) 5)`, `(10)`);
 evalAssert(`(define repeat (lambda (f) (compose f f)))`, `<Lambda>`);
-evalAssert(`((repeat twice) 5)`, `20`);
-evalAssert(`((repeat (repeat twice)) 5)`, `80`);
+evalAssert(`((repeat twice) 5)`, 20);
+evalAssert(`((repeat (repeat twice)) 5)`, 80);
 evalAssert(`(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))`, `<Lambda>`);
-evalAssert(`(fact 3)`, `6`);
-evalAssert(`(fact 12)`, `479001600`);
-//evalAndAssert(`(fact 50)`, `30414093201713378043612608166064768844377641568960512000000000000`);
+evalAssert(`(fact 3)`, 6);
+evalAssert(`(fact 12)`, 479001600);
 evalAssert(`(define abs (lambda (n) ((if (> n 0) + -) 0 n)))`, `<Lambda>`);
 evalAssert(`(list (abs -3) (abs 0) (abs 3))`, `(3 0 3)`);
 assert.deepStrictEqual(
