@@ -8,13 +8,16 @@ function interpret(source: string): void {
     //console.log("tokenized", JSON.stringify(tokenized, null, 4));
 
     const parsed = parse(tokenized);
-    console.log(JSON.stringify(parsed, null, 4));
+    //console.log(JSON.stringify(parsed, null, 4));
 
     const evaluated = evaluate(parsed);
     console.log(evaluated);
 }
 
 const input = `((lambda (x) (* x x)) 5)`;
+const input_2 = `(* ((lambda (x) (* x x)) 5) 12)`;
+const input_3 = `(* ((lambda (x) (* x ((lambda (x y) (- x y)) 96 64))) 5) 10)`;
+
 const input_complex_moderate = `
     (begin
         (define rectangle-area (lambda (height width) (* height width)))
@@ -37,7 +40,19 @@ const input_complex_2 = `
     )
 `;
 
+const recursive_lambda = `
+    (begin
+        (define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))
+        (define x (fact 8))
+    )
+`;
+
 //console.log(JSON.stringify(parse(tokenize(input_complex_2)), null, 4), JSON.stringify(parse(tokenize(input)), null, 4));
 
-// interpret(input_complex_2);
-interpret(input);
+//interpret(input);
+//interpret(input_2);
+//interpret(input_3);
+//interpret(input_complex_moderate);
+//interpret(input_complex);
+//interpret(input_complex_2);
+interpret(recursive_lambda);

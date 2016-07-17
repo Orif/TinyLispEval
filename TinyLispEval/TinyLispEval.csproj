@@ -29,6 +29,7 @@
     <TypeScriptCompile Include="src\EvaluateExpression.ts" />
     <TypeScriptCompile Include="src\Lexer.ts" />
     <TypeScriptCompile Include="src\Parser.ts" />
+    <TypeScriptCompile Include="src\Scope.ts" />
     <TypeScriptCompile Include="src\TokenIterator.ts" />
     <TypeScriptCompile Include="src\Tokenizer.ts" />
     <TypeScriptCompile Include="src\TokenToExpression.ts" />

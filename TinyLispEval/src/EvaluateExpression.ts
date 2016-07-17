@@ -9,64 +9,9 @@
     IExpressionVisitor
 } from "./Expression";
 
-class Scope {
-    private map: Map<string, Object>;
-    private outerScope: Scope;
+import { Scope } from "./Scope";
 
-    constructor(outerScope: Scope) {
-        this.outerScope = outerScope;
-        this.map = new Map<string, Object>();
-    }
-
-    find<T>(symbolName: string): T {
-        return (
-            this.map.has(symbolName)
-                ? <T>this.map.get(symbolName)
-                : (this.outerScope
-                    ? <T>this.outerScope.find(symbolName)
-                    : undefined)
-        );
-    }
-
-    add(symbolName: string, value: Object): void {
-        this.map.set(symbolName, value);
-    }
-
-    createChildScope(): Scope {
-        return new Scope(this);
-    }
-
-    static defaultScope: Scope = undefined;
-}
-class DefaultScope extends Scope {
-    constructor() {
-        super(undefined);
-
-        this.add("+", (first: any, second: any) => first + second);
-        this.add("-", (first: any, second: any) => first - second);
-        this.add("*", (first: any, second: any) => first * second);
-        this.add("/", (first: any, second: any) => first / second);
-
-        this.add("pi", Math.PI);
-
-        this.add(">", (first: any, second: any) => first > second);
-        this.add("<", (first: any, second: any) => first < second);
-        this.add(">=", (first: any, second: any) => first >= second);
-        this.add("<=", (first: any, second: any) => first <= second);
-
-        // todo: add operators and Math functions
-
-        //this.map.set("abs", Math.abs);
-        //this.map.set("max", Math.max);
-        //this.map.set("min", Math.min);
-        //this.map.set("not", (value: boolean) => !value);
-        //this.map.set("round", Math.round);
-    }
-}
-
-Scope.defaultScope = new DefaultScope();
-
-function visit(expression: Expression, scope: Scope = Scope.defaultScope): any {
+function visit(expression: Expression, scope: Scope): any {
     switch (expression.type) {
         case "Number":
             return expression.value;
@@ -81,8 +26,8 @@ function visit(expression: Expression, scope: Scope = Scope.defaultScope): any {
             return visitCall(expression, scope);
 
         case "Expression":
-            visitLambda(expression, scope);
-            return;
+            return visitLambda(expression, scope);
+            //return;
 
         case "Block":
             return visitBlock(expression, scope);
@@ -91,7 +36,7 @@ function visit(expression: Expression, scope: Scope = Scope.defaultScope): any {
     throw new TypeError(`Unknown expression: ${expression}`);
 }
 
-function visitIdentifier(identifierExpression: IdentifierExpression, scope: Scope = Scope.defaultScope): any {
+function visitIdentifier(identifierExpression: IdentifierExpression, scope: Scope): any {
     // todo: check if the identifier exists
 
     let value = scope.find(identifierExpression.name);
@@ -103,14 +48,14 @@ function visitIdentifier(identifierExpression: IdentifierExpression, scope: Scop
     return value;
 }
 
-function visitLambda(lambdaExpression: LambdaExpression, scope: Scope = Scope.defaultScope) {
+function visitLambda(lambdaExpression: LambdaExpression, scope: Scope) {
     switch (lambdaExpression.body.type) {
         case "Call":
         case "If":
             break;
 
         default:
-            throw new SyntaxError(`Not supported expression: ${lambdaExpression.body.type}`);
+            throw new SyntaxError(`Not supported (yet) expression: ${lambdaExpression.body.type}`);
     }
 
     const childScope = scope.createChildScope();
@@ -120,13 +65,13 @@ function visitLambda(lambdaExpression: LambdaExpression, scope: Scope = Scope.de
     });
 }
 
-function visitIfThenElse(expression: IfThenElseExpression, scope: Scope = Scope.defaultScope): any {
-    return (visit(expression.condition) === true
-        ? visit(expression.consequence)
-        : visit(expression.alternative));
+function visitIfThenElse(expression: IfThenElseExpression, scope: Scope): any {
+    return (visit(expression.condition, scope) === true
+        ? visit(expression.consequence, scope)
+        : visit(expression.alternative, scope));
 }
 
-function visitCall(callExpression: CallExpression, scope: Scope = Scope.defaultScope): any {
+function visitCall(callExpression: CallExpression, scope: Scope): any {
     const func = scope.find<Function>(callExpression.name);
     if (!func || !(func instanceof Function)) {
         throw new SyntaxError(`Unknown expression: ${func}`);
@@ -138,11 +83,11 @@ function visitCall(callExpression: CallExpression, scope: Scope = Scope.defaultS
     return result;
 }
 
-function visitBlock(blockExpression: BlockExpression, scope: Scope = Scope.defaultScope): any {
-    const results = blockExpression.expressions.map(expression => visit(expression));
+function visitBlock(blockExpression: BlockExpression, scope: Scope): any {
+    const results = blockExpression.expressions.map(expression => visit(expression, scope));
     return results[results.length - 1];
 }
 
 export function evaluate(expression: Expression): any {
-    return visit(expression);
+    return visit(expression, Scope.defaultScope.createChildScope());
 }
