@@ -46,8 +46,8 @@ function toConditionalExpression(token: SymbolToken): IfThenElseExpression {
     };
 }
 
-// todo
 function toQuoteExpression(token: SymbolToken): Expression {
+    // todo
     return undefined;
 }
 
@@ -82,86 +82,6 @@ function toAnonLambdaExpression(token: SymbolToken): IdentifierExpression {
     };
 
     const emitted = toSetIdentifierExpression(defineLambda);
-
-    const sample = {
-        "type": "Call",
-        "args": [
-
-            {
-                "type": "Expression",
-                "name": "circle-area",
-                "args": [
-                    "r"
-                ],
-                "body": {
-                    "type": "Call",
-                    "name": "*",
-                    "args": [
-                        {
-                            "type": "Identifier",
-                            "name": "pi"
-                        },
-                        {
-                            "type": "Call",
-                            "name": "*",
-                            "args": [
-                                {
-                                    "type": "Identifier",
-                                    "name": "r"
-                                },
-                                {
-                                    "type": "Identifier",
-                                    "name": "r"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-
-            , {
-                "type": "Call",
-                "name": "circle-area",
-                "args": [
-                    {
-                        "type": "Number",
-                        "value": 10
-                    }
-                ]
-            }
-        ]
-    };
-
-    const current = {
-        "type": "Call",
-        "args": [
-            {
-                "type": "Expression",
-                "name": "some_anon_lambda",
-                "args": [
-                    "x"
-                ],
-                "body": {
-                    "type": "Call",
-                    "name": "+",
-                    "args": [
-                        {
-                            "type": "Identifier",
-                            "name": "x"
-                        },
-                        {
-                            "type": "Identifier",
-                            "name": "x"
-                        }
-                    ]
-                }
-            },
-            {
-                "type": "Number",
-                "value": 5
-            }
-        ]
-    };
 
     return <IdentifierExpression>emitted;
 }
@@ -219,7 +139,8 @@ function toExpression(token: Token): Expression {
                 case "quote":
                     return toQuoteExpression(token);
 
-                case "set!": // todo: check if the identifier exists
+                case "set!":
+                    // todo: check if the identifier exists
                     return toSetIdentifierExpression(token);
 
                 case "lambda":
@@ -274,7 +195,8 @@ function reduce(token: Token): Token {
 }
 
 function parse(input: Token) {
-    return toExpression(reduce(input));
+    const reducedTree = reduce(input);
+    return toExpression(reducedTree);
 }
 
 export { parse }
