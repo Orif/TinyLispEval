@@ -47,7 +47,7 @@ class DefaultScope extends Scope {
         this.add("*", (first: any, second: any) => first * second);
         this.add("/", (first: any, second: any) => first / second);
 
-        this.add("pi", () => Math.PI);
+        this.add("pi", Math.PI);
 
         this.add(">", (first: any, second: any) => first > second);
         this.add("<", (first: any, second: any) => first < second);
