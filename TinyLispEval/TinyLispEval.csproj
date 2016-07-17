@@ -30,11 +30,8 @@
     <TypeScriptCompile Include="src\Lexer.ts" />
     <TypeScriptCompile Include="src\Parser.ts" />
     <TypeScriptCompile Include="src\Scope.ts" />
-    <TypeScriptCompile Include="src\TokenIterator.ts" />
     <TypeScriptCompile Include="src\Tokenizer.ts" />
-    <TypeScriptCompile Include="src\TokenToExpression.ts" />
     <TypeScriptCompile Include="src\Utils.ts" />
-    <TypeScriptCompile Include="tests\Eval2.Tests.ts" />
     <TypeScriptCompile Include="tests\Eval.Tests.ts" />
     <TypeScriptCompile Include="tests\Lispy.Tests.ts" />
     <TypeScriptCompile Include="tests\Tokenizer.Tests.ts" />
