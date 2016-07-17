@@ -30,11 +30,9 @@
     <TypeScriptCompile Include="src\Lexer.ts" />
     <TypeScriptCompile Include="src\Parser.ts" />
     <TypeScriptCompile Include="src\Scope.ts" />
-    <TypeScriptCompile Include="src\Tokenizer.ts" />
     <TypeScriptCompile Include="src\Utils.ts" />
     <TypeScriptCompile Include="tests\Eval.Tests.ts" />
     <TypeScriptCompile Include="tests\Lispy.Tests.ts" />
-    <TypeScriptCompile Include="tests\Tokenizer.Tests.ts" />
     <TypeScriptCompile Include="typings\globals\assert\index.d.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />
   </ItemGroup>
