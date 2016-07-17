@@ -25,7 +25,7 @@ function visit(expression: Expression, scope: Scope): any {
         case "Call":
             return visitCall(expression, scope);
 
-        case "Expression":
+        case "Lambda":
             return visitLambda(expression, scope);
 
         case "Block":

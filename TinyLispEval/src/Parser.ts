@@ -57,7 +57,7 @@ function toLambdaExpression(token: SymbolToken): LambdaExpression {
     const argNames = [argsStart.value, ...(argsStart.tokens || []).map(arg => arg.value)];
 
     return {
-        type: "Expression",
+        type: "Lambda",
         name: token.value,
         args: argNames,
         body: toExpression(body)
