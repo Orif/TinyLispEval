@@ -1,7 +1,8 @@
-﻿type NotFoundValue = { VALUE: null };
+﻿type NotFound = { VALUE: null };
+const NotFoundValue: NotFound = { VALUE: null };
 
 interface IScope {
-    find<T>(symbolName: string): T | NotFoundValue;
+    find<T>(symbolName: string): T | NotFound;
     add(symbolName: string, value: Object): void;
     createChildScope(): IScope;
 }
@@ -13,12 +14,8 @@ class BaseScope implements IScope {
         this.map = new Map<string, Object>();
     }
 
-    find<T>(symbolName: string): T | NotFoundValue {
-        return (
-            this.map.has(symbolName)
-                ? <T>this.map.get(symbolName)
-                : { VALUE: null }
-        );
+    find<T>(symbolName: string): T | NotFound {
+        return (this.map.has(symbolName) ? <T>this.map.get(symbolName) : NotFoundValue);
     }
 
     add(symbolName: string, value: Object): void {
@@ -26,36 +23,6 @@ class BaseScope implements IScope {
     }
 
     createChildScope(): IScope {
-        return new Scope(this);
-    }
-
-    static defaultScope: IScope = new DefaultScope();
-}
-
-class Scope extends BaseScope implements IScope {
-    private outerScope: IScope;
-
-    constructor(outerScope: IScope) {
-        super();
-
-        this.outerScope = outerScope;
-    }
-
-    find<T>(symbolName: string): T | NotFoundValue {
-        return (
-            this.map.has(symbolName)
-                ? <T>this.map.get(symbolName)
-                : (this.outerScope
-                    ? <T>this.outerScope.find(symbolName)
-                    : { VALUE: null })
-        );
-    }
-
-    add(symbolName: string, value: Object): void {
-        this.map.set(symbolName, value);
-    }
-
-    createChildScope(): Scope {
         return new Scope(this);
     }
 }
@@ -86,4 +53,28 @@ class DefaultScope extends BaseScope {
     }
 }
 
-export { IScope, Scope }
+class Scope extends BaseScope implements IScope {
+    private parent: IScope;
+
+    constructor(outerScope: IScope) {
+        super();
+
+        this.parent = outerScope;
+    }
+
+    find<T>(symbolName: string): T | NotFound {
+        return (this.map.has(symbolName) ? <T>this.map.get(symbolName) : this.parent.find<T>(symbolName));
+    }
+
+    add(symbolName: string, value: Object): void {
+        this.map.set(symbolName, value);
+    }
+
+    createChildScope(): Scope {
+        return new Scope(this);
+    }
+
+    static defaultScope: IScope = new DefaultScope();
+}
+
+export { IScope, Scope, NotFoundValue }

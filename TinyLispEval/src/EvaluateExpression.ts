@@ -8,7 +8,7 @@
     Expression
 } from "./Expression";
 
-import { IScope, Scope } from "./Scope";
+import { IScope, Scope, NotFoundValue } from "./Scope";
 
 function visit(expression: Expression, scope: IScope): any {
     switch (expression.type) {
@@ -42,13 +42,13 @@ function visitIdentifier(identifierExpression: IdentifierExpression, scope: ISco
     // todo: check if the identifier exists
 
     let value = scope.find(identifierExpression.name);
-    if (!value) {
+    if (value === NotFoundValue) {
         if (identifierExpression.expression) {
             value = visit(identifierExpression.expression, scope);
             scope.add(identifierExpression.name, value);
+        } else {
+            throw new ReferenceError(`Unknown identifier: ${identifierExpression.name}`);
         }
-
-        throw new ReferenceError(`Unknown identifier: ${identifierExpression.name}`);
     }
 
     return value;
@@ -79,7 +79,7 @@ function visitIfThenElse(expression: IfThenElseExpression, scope: IScope): any {
 
 function visitCall(callExpression: CallExpression, scope: IScope): any {
     const func = scope.find<Function>(callExpression.name);
-    if (!func || !(func instanceof Function)) {
+    if (func === NotFoundValue || !(func instanceof Function)) {
         throw new SyntaxError(`Unknown expression: ${func}`);
     }
 
@@ -95,5 +95,5 @@ function visitBlock(blockExpression: BlockExpression, scope: IScope): any {
 }
 
 export function evaluate(expression: Expression): any {
-    return visit(expression, Scope.defaultScope);
+    return visit(expression, Scope.defaultScope.createChildScope());
 }

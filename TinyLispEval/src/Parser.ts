@@ -183,7 +183,7 @@ function reduce(token: Token): Token {
         if (isNullOrEmpty(token.value || "")) {
             const [head, ...rest] = token.tokens;
 
-            if (!isNullOrEmpty(head.value) && head.type === "symbol" && head.tokens.length > 0) { // safe to promote
+            if (head.type === "symbol" && !isNullOrEmpty(head.value) && isNullOrEmpty(head.tokens)) { // safe to promote
                 if (rest.length > 0) {
                     head.tokens = rest;
                 }
