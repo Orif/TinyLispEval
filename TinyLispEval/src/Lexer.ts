@@ -7,8 +7,8 @@ interface NumberToken {
 
 interface SymbolToken {
     type: "symbol";
-    value?: string;
-    tokens?: Array<Token>;
+    value: string;
+    tokens: Token[];
 }
 
 type Token = NumberToken | SymbolToken;
@@ -16,12 +16,12 @@ type Token = NumberToken | SymbolToken;
 function toToken(value: string): Token {
     return (isNumeric(value)
         ? { type: "number", value: value }
-        : { type: "symbol", value: value }
+        : { type: "symbol", value: value, tokens: [] }
     );
 }
 
-function iterateSource(source: string): Array<string> {
-    const list: Array<string> = [];
+function iterateSource(source: string): string[] {
+    const list: string[] = [];
 
     const WHITESPACE: RegExp = /\s/;
     const len = source.length;
@@ -68,14 +68,16 @@ function iterateSource(source: string): Array<string> {
     return list;
 }
 
-function normalize(tokenValues: Array<string>): Array<Token> {
+const TokenEnd: SymbolToken = { type: "symbol", value: "EOF", tokens: [] };
+
+function normalize(tokenValues: string[]): Token[] {
     let tokensLength: number;
     if (!(tokenValues && (tokensLength = tokenValues.length) > 0)) {
         return [];
     }
 
     let i = -1;
-    let current: string;
+    let current: string = "";
 
     function read(): void {
         current = (i < tokensLength - 1) ? tokenValues[++i] : "";
@@ -84,15 +86,10 @@ function normalize(tokenValues: Array<string>): Array<Token> {
     function next(tokenString: string): Token {
         switch (tokenString) {
             case "":
-                return undefined;
+                return TokenEnd;
 
             case "(":
-                let parent: SymbolToken = {
-                    type: "symbol",
-                    tokens: <Array<Token>>[]
-                };
-
-                const list: Array<Token> = [];
+                const list: Token[] = [];
 
                 while (true) {
                     read();
@@ -109,11 +106,11 @@ function normalize(tokenValues: Array<string>): Array<Token> {
                     list.push(token);
                 }
 
-                if (parent) {
-                    parent.tokens = list;
-                }
-
-                return parent;
+                return {
+                    type: "symbol",
+                    value: "",
+                    tokens: list
+                };
 
             case ")":
                 throw new SyntaxError(`Unexpected token: ")" at ${i}.`);
@@ -122,13 +119,13 @@ function normalize(tokenValues: Array<string>): Array<Token> {
         return toToken(tokenString);
     }
 
-    const tokens: Array<Token> = [];
+    const tokens: Token[] = [];
 
     while (true) {
         read();
 
         const token = next(current);
-        if (!token) {
+        if (token === TokenEnd) {
             break;
         }
 
@@ -144,10 +141,7 @@ function tokenize(source: string): SymbolToken {
 
     return (tokens.length === 1
         ? <SymbolToken>tokens[0]
-        : {
-            type: "symbol",
-            tokens: tokens
-        }
+        : { type: "symbol", value: "", tokens: tokens }
     );
 }
 

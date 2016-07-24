@@ -14,7 +14,7 @@ import {
 function toIdentifierExpression(token: SymbolToken): IdentifierExpression {
     return {
         type: "Identifier",
-        name: token.value
+        name: token.value || ""
     };
 }
 
@@ -48,7 +48,7 @@ function toConditionalExpression(token: SymbolToken): IfThenElseExpression {
 
 function toQuoteExpression(token: SymbolToken): Expression {
     // todo
-    return undefined;
+    throw new Error("Not implemented");
 }
 
 function toLambdaExpression(token: SymbolToken): LambdaExpression {
@@ -74,10 +74,12 @@ function toAnonLambdaExpression(token: SymbolToken): IdentifierExpression {
 
     const defineAnonIdentifierForLambda: SymbolToken = {
         type: "symbol",
-        value: uniqueName
+        value: uniqueName,
+        tokens: []
     };
     const defineLambda: SymbolToken = {
         type: "symbol",
+        value: "",
         tokens: [defineAnonIdentifierForLambda, token]
     };
 
@@ -115,7 +117,7 @@ function toNamedCallExpression(token: SymbolToken): CallExpression {
 
     return {
         type: "Call",
-        name: token.value,
+        name: token.value || "",
         args: args
     };
 }
@@ -175,13 +177,13 @@ function toExpression(token: Token): Expression {
 }
 
 function reduce(token: Token): Token {
-    if (token.type === "symbol" && token.tokens && token.tokens.length > 0) {
+    if (token.type === "symbol" && token.tokens.length > 0) {
         token.tokens = token.tokens.map(reduce);
 
-        if (isNullOrEmpty(token.value)) {
+        if (isNullOrEmpty(token.value || "")) {
             const [head, ...rest] = token.tokens;
 
-            if (!isNullOrEmpty(head.value) && head.type === "symbol" && isNullOrEmpty(head.tokens)) { // safe to promote
+            if (!isNullOrEmpty(head.value) && head.type === "symbol" && head.tokens.length > 0) { // safe to promote
                 if (rest.length > 0) {
                     head.tokens = rest;
                 }

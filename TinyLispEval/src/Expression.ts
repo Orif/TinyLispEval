@@ -12,14 +12,14 @@ interface IdentifierExpression {
 interface LambdaExpression {
     type: "Lambda";
     name: string;
-    args: Array<string>;
+    args: string[];
     body: Expression;
 }
 
 interface CallExpression {
     type: "Call";
     name: string;
-    args: Array<Expression>;
+    args: Expression[];
 }
 
 interface IfThenElseExpression {
@@ -31,11 +31,11 @@ interface IfThenElseExpression {
 
 interface BlockExpression {
     type: "Block";
-    expressions: Array<Expression>;
+    expressions: Expression[];
 }
 
-type Expression
-    = BlockExpression
+type Expression =
+    BlockExpression
     | NumberLiteralExpression
     | IdentifierExpression
     | LambdaExpression

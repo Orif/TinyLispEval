@@ -2,7 +2,7 @@
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "outDir": "./output",
     "target": "es6",
     "module": "none",

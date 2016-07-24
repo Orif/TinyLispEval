@@ -5,16 +5,15 @@
     LambdaExpression,
     IfThenElseExpression,
     CallExpression,
-    Expression,
-    IExpressionVisitor
+    Expression
 } from "./Expression";
 
-import { Scope } from "./Scope";
+import { IScope, Scope } from "./Scope";
 
-function visit(expression: Expression, scope: Scope): any {
+function visit(expression: Expression, scope: IScope): any {
     switch (expression.type) {
         case "Number":
-            return expression.value;
+            return visitNumberLiteral(expression);
 
         case "Identifier":
             return visitIdentifier(expression, scope);
@@ -35,19 +34,27 @@ function visit(expression: Expression, scope: Scope): any {
     throw new TypeError(`Unknown expression: ${expression}`);
 }
 
-function visitIdentifier(identifierExpression: IdentifierExpression, scope: Scope): any {
+function visitNumberLiteral(expression: NumberLiteralExpression): number {
+    return expression.value;
+}
+
+function visitIdentifier(identifierExpression: IdentifierExpression, scope: IScope): any {
     // todo: check if the identifier exists
 
     let value = scope.find(identifierExpression.name);
     if (!value) {
-        value = visit(identifierExpression.expression, scope);
-        scope.add(identifierExpression.name, value);
+        if (identifierExpression.expression) {
+            value = visit(identifierExpression.expression, scope);
+            scope.add(identifierExpression.name, value);
+        }
+
+        throw new ReferenceError(`Unknown identifier: ${identifierExpression.name}`);
     }
 
     return value;
 }
 
-function visitLambda(lambdaExpression: LambdaExpression, scope: Scope) {
+function visitLambda(lambdaExpression: LambdaExpression, scope: IScope) {
     switch (lambdaExpression.body.type) {
         case "Call":
         case "If":
@@ -58,19 +65,19 @@ function visitLambda(lambdaExpression: LambdaExpression, scope: Scope) {
     }
 
     const childScope = scope.createChildScope();
-    scope.add(lambdaExpression.name, (...args: Array<any>) => {
+    scope.add(lambdaExpression.name, (...args: any[]) => {
         lambdaExpression.args.forEach((arg: string, index: number) => childScope.add(arg, args[index]));
         return visit(lambdaExpression.body, childScope);
     });
 }
 
-function visitIfThenElse(expression: IfThenElseExpression, scope: Scope): any {
+function visitIfThenElse(expression: IfThenElseExpression, scope: IScope): any {
     return (visit(expression.condition, scope) === true
         ? visit(expression.consequence, scope)
         : visit(expression.alternative, scope));
 }
 
-function visitCall(callExpression: CallExpression, scope: Scope): any {
+function visitCall(callExpression: CallExpression, scope: IScope): any {
     const func = scope.find<Function>(callExpression.name);
     if (!func || !(func instanceof Function)) {
         throw new SyntaxError(`Unknown expression: ${func}`);
@@ -82,11 +89,11 @@ function visitCall(callExpression: CallExpression, scope: Scope): any {
     return result;
 }
 
-function visitBlock(blockExpression: BlockExpression, scope: Scope): any {
+function visitBlock(blockExpression: BlockExpression, scope: IScope): any {
     const results = blockExpression.expressions.map(expression => visit(expression, scope));
     return results[results.length - 1];
 }
 
 export function evaluate(expression: Expression): any {
-    return visit(expression, Scope.defaultScope.createChildScope());
+    return visit(expression, Scope.defaultScope);
 }

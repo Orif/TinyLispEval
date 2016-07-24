@@ -2,7 +2,7 @@
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-function isNullOrEmpty(array: string | Array<any>): boolean {
+function isNullOrEmpty(array: string | any[]): boolean {
     return !(array && array.length);
 }
 
