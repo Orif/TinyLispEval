@@ -3,9 +3,13 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,    
+
     "outDir": "./output",
     "target": "es6",
     "module": "none",
+
     "removeComments": true
   },
   "exclude": [

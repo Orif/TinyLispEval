@@ -1,40 +1,40 @@
-﻿interface NumberLiteralExpression {
+﻿export interface NumberLiteralExpression {
     type: "Number";
     value: number;
 }
 
-interface IdentifierExpression {
+export interface IdentifierExpression {
     type: "Identifier";
     name: string;
     expression?: Expression;
 }
 
-interface LambdaExpression {
+export interface LambdaExpression {
     type: "Lambda";
     name: string;
     args: string[];
     body: Expression;
 }
 
-interface CallExpression {
+export interface CallExpression {
     type: "Call";
     name: string;
     args: Expression[];
 }
 
-interface IfThenElseExpression {
+export interface IfThenElseExpression {
     type: "If";
     condition: Expression;
     consequence: Expression;
     alternative: Expression;
 }
 
-interface BlockExpression {
+export interface BlockExpression {
     type: "Block";
     expressions: Expression[];
 }
 
-type Expression =
+export type Expression =
     BlockExpression
     | NumberLiteralExpression
     | IdentifierExpression
@@ -42,17 +42,6 @@ type Expression =
     | CallExpression
     | IfThenElseExpression;
 
-interface IExpressionVisitor {
+export interface IExpressionVisitor {
     visit(expression: Expression): Expression;
-}
-
-export {
-    NumberLiteralExpression,
-    IdentifierExpression,
-    LambdaExpression,
-    CallExpression,
-    IfThenElseExpression,
-    BlockExpression,
-    Expression,
-    IExpressionVisitor
 }

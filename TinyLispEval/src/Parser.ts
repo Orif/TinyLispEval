@@ -196,9 +196,7 @@ function reduce(token: Token): Token {
     return token;
 }
 
-function parse(input: Token) {
+export function parse(input: Token) {
     const reducedTree = reduce(input);
     return toExpression(reducedTree);
 }
-
-export { parse }

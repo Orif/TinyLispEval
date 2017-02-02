@@ -1,17 +1,17 @@
 ﻿import { isNumeric } from "./Utils";
 
-interface NumberToken {
+export interface NumberToken {
     type: "number";
     value: string;
 }
 
-interface SymbolToken {
+export interface SymbolToken {
     type: "symbol";
     value: string;
     tokens: Token[];
 }
 
-type Token = NumberToken | SymbolToken;
+export type Token = NumberToken | SymbolToken;
 
 function toToken(value: string): Token {
     return (isNumeric(value)
@@ -135,7 +135,7 @@ function normalize(tokenValues: string[]): Token[] {
     return tokens;
 }
 
-function tokenize(source: string): SymbolToken {
+export function tokenize(source: string): SymbolToken {
     const stringTokens = iterateSource(source);
     const tokens = normalize(stringTokens);
 
@@ -144,5 +144,3 @@ function tokenize(source: string): SymbolToken {
         : { type: "symbol", value: "", tokens: tokens }
     );
 }
-
-export { NumberToken, SymbolToken, Token, tokenize }

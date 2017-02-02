@@ -1,7 +1,7 @@
 ﻿type NotFound = { VALUE: null };
-const NotFoundValue: NotFound = { VALUE: null };
+export const NotFoundValue: NotFound = { VALUE: null };
 
-interface IScope {
+export interface IScope {
     find<T>(symbolName: string): T | NotFound;
     add(symbolName: string, value: Object): void;
     createChildScope(): IScope;
@@ -53,7 +53,7 @@ class DefaultScope extends BaseScope {
     }
 }
 
-class Scope extends BaseScope implements IScope {
+export class Scope extends BaseScope implements IScope {
     private parent: IScope;
 
     constructor(outerScope: IScope) {
@@ -66,15 +66,5 @@ class Scope extends BaseScope implements IScope {
         return (this.map.has(symbolName) ? <T>this.map.get(symbolName) : this.parent.find<T>(symbolName));
     }
 
-    add(symbolName: string, value: Object): void {
-        this.map.set(symbolName, value);
-    }
-
-    createChildScope(): Scope {
-        return new Scope(this);
-    }
-
     static defaultScope: IScope = new DefaultScope();
 }
-
-export { IScope, Scope, NotFoundValue }
